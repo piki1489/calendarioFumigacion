@@ -139,27 +139,31 @@
       const fumigationSchedule = [
         {
           start: 1,
-          interval: 12,
+          interval: 15,
           treatment: "Infusión de Ajo (Pulgón, mosca blanca, trips)",
         },
         {
-          start: 3,
-          interval: 15,
+          start: 5,
+          interval: 20,
           treatment: "Bacillus thuringiensis (Tuta absoluta, orugas)",
         },
         {
-          start: 6,
-          interval: 15,
+          start: 10,
+          interval: 25,
           treatment: "Jabón potásico (Pulgón, cochinilla, mosca blanca)",
         },
         {
-          start: 10,
+          start: 15,
           interval: 30,
           treatment: "Azufre (Mildiu, oídio, ácaros en clima fresco)",
         },
       ];
 
+      const currentMonth = new Date().getMonth();
+
       function generateCalendar(month, year) {
+        if (month < currentMonth) return;
+
         let container = document.createElement("div");
         container.className = "calendar";
 
@@ -218,7 +222,7 @@
         document.getElementById("fumigationModal").style.display = "none";
       }
 
-      for (let i = 0; i < 12; i++) {
+      for (let i = currentMonth; i < 12; i++) {
         generateCalendar(i, 2025);
       }
     </script>

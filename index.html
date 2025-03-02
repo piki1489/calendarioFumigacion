@@ -138,18 +138,22 @@
 
       const fumigationSchedule = [
         {
+          start: 1,
           interval: 12,
           treatment: "Infusión de Ajo (Pulgón, mosca blanca, trips)",
         },
         {
+          start: 3,
           interval: 15,
           treatment: "Bacillus thuringiensis (Tuta absoluta, orugas)",
         },
         {
+          start: 6,
           interval: 15,
           treatment: "Jabón potásico (Pulgón, cochinilla, mosca blanca)",
         },
         {
+          start: 10,
           interval: 30,
           treatment: "Azufre (Mildiu, oídio, ácaros en clima fresco)",
         },
@@ -170,7 +174,7 @@
         let treatments = {};
 
         fumigationSchedule.forEach((schedule) => {
-          let day = schedule.interval;
+          let day = schedule.start;
           while (day <= daysInMonth) {
             treatments[day] = schedule.treatment;
             day += schedule.interval;

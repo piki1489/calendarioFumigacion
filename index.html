@@ -3,12 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Calendario de Fumigación</title>
+    <title>Huerto Travalón - Calendario de Fumigación</title>
     <style>
       body {
-        font-family: Arial, sans-serif;
+        font-family: "Arial", sans-serif;
         text-align: center;
-        background-color: #f4f4f4;
+        background-color: #e8f5e9;
         margin: 0;
         padding: 20px;
       }
@@ -21,16 +21,21 @@
       }
       .calendar {
         background: white;
-        padding: 10px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         width: 100%;
-        max-width: 320px;
+        max-width: 350px;
+        transition: transform 0.2s;
+      }
+      .calendar:hover {
+        transform: scale(1.05);
       }
       .month {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: bold;
         margin-bottom: 10px;
+        color: #2e7d32;
       }
       .days {
         display: grid;
@@ -38,15 +43,19 @@
         gap: 5px;
       }
       .day {
-        padding: 8px;
-        border-radius: 4px;
+        padding: 10px;
+        border-radius: 5px;
         text-align: center;
         font-size: 14px;
-        background: #ddd;
+        background: #c8e6c9;
         cursor: pointer;
+        transition: background 0.2s;
+      }
+      .day:hover {
+        background: #81c784;
       }
       .fumigation {
-        background: #ff5733;
+        background: #ff7043;
         color: white;
       }
       /* Estilos del modal */
@@ -65,21 +74,36 @@
       .modal-content {
         background: white;
         padding: 20px;
-        border-radius: 8px;
+        border-radius: 10px;
         width: 90%;
-        max-width: 400px;
+        max-width: 450px;
         text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
       }
       .close {
         color: red;
-        font-size: 20px;
+        font-size: 24px;
         cursor: pointer;
         float: right;
+      }
+      .product-image {
+        width: 100px;
+        height: auto;
+        margin-top: 10px;
+      }
+      .product-link {
+        display: block;
+        margin-top: 10px;
+        color: #1b5e20;
+        text-decoration: none;
+        font-weight: bold;
       }
     </style>
   </head>
   <body>
-    <h1>Calendario de Fumigación Ecológica</h1>
+    <h1 style="color: #1b5e20; font-size: 28px">
+      🌱 Huerto Travalón - Calendario de Fumigación Ecológica 🌿
+    </h1>
     <div class="container" id="calendars"></div>
 
     <!-- Modal -->
@@ -88,6 +112,15 @@
         <span class="close" onclick="closeModal()">&times;</span>
         <h2 id="modalTitle"></h2>
         <p id="modalContent"></p>
+        <img
+          id="productImage"
+          class="product-image"
+          src=""
+          alt="Imagen del producto"
+        />
+        <a id="productLink" class="product-link" href="#" target="_blank"
+          >Comprar producto</a
+        >
       </div>
     </div>
 

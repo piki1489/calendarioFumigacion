@@ -86,41 +86,37 @@
         cursor: pointer;
         float: right;
       }
-      .product-image {
-        width: 100px;
-        height: auto;
-        margin-top: 10px;
-      }
-      .product-link {
-        display: block;
-        margin-top: 10px;
-        color: #1b5e20;
-        text-decoration: none;
-        font-weight: bold;
-      }
     </style>
   </head>
   <body>
     <h1 style="color: #1b5e20; font-size: 28px">
-      🌱 Huerto Travalón - Calendario de Fumigación Ecológica 🌿
+      🌱 Huerto Travalón - Calendario de Fumigación Preventiva 🌿
     </h1>
+    <button onclick="openAdviceModal()">
+      📖 Consejos para un Huerto Ecológico
+    </button>
     <div class="container" id="calendars"></div>
 
-    <!-- Modal -->
+    <!-- Modal Consejos -->
+    <div id="adviceModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" onclick="closeAdviceModal()">&times;</span>
+        <h2>Consejos para un Huerto Ecológico</h2>
+        <ul style="text-align: left">
+          <li>🌿 Usa **trampas cromáticas** para monitorear plagas.</li>
+          <li>🐞 Introduce **insectos beneficiosos** como mariquitas.</li>
+          <li>🚜 Alterna cultivos para evitar enfermedades en el suelo.</li>
+          <li>💧 Evita el exceso de riego para prevenir hongos.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Modal Fumigación -->
     <div id="fumigationModal" class="modal" style="display: none">
       <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
         <h2 id="modalTitle"></h2>
         <p id="modalContent"></p>
-        <img
-          id="productImage"
-          class="product-image"
-          src=""
-          alt="Imagen del producto"
-        />
-        <a id="productLink" class="product-link" href="#" target="_blank"
-          >Comprar producto</a
-        >
       </div>
     </div>
 
@@ -140,16 +136,24 @@
         "Diciembre",
       ];
 
-      const fumigationDays = {
-        1: "Aceite de Neem (Pulgón, mosca blanca, trips)",
-        5: "Bacillus thuringiensis (Orugas, Tuta absoluta)",
-        10: "Jabón potásico (Pulgón, cochinilla, mosca blanca)",
-        15: "Infusión de ajo y cebolla (Hongos y bacterias)",
-        18: "Azufre (Mildiu, oídio, ácaros) en temperaturas frescas (<30°C)",
-        20: "Cola de caballo (Mildiu, oídio)",
-        25: "Bicarbonato de sodio (Oídio y hongos, sustituye azufre en calor)",
-        30: "Trampas cromáticas y ceniza de madera (Mosca blanca, caracoles)",
-      };
+      const fumigationSchedule = [
+        {
+          interval: 12,
+          treatment: "Aceite de Neem (Pulgón, mosca blanca, trips)",
+        },
+        {
+          interval: 15,
+          treatment: "Bacillus thuringiensis (Tuta absoluta, orugas)",
+        },
+        {
+          interval: 15,
+          treatment: "Jabón potásico (Pulgón, cochinilla, mosca blanca)",
+        },
+        {
+          interval: 30,
+          treatment: "Azufre (Mildiu, oídio, ácaros en clima fresco)",
+        },
+      ];
 
       function generateCalendar(month, year) {
         let container = document.createElement("div");
@@ -163,16 +167,25 @@
         daysContainer.className = "days";
 
         let daysInMonth = new Date(year, month + 1, 0).getDate();
+        let treatments = {};
+
+        fumigationSchedule.forEach((schedule) => {
+          let day = schedule.interval;
+          while (day <= daysInMonth) {
+            treatments[day] = schedule.treatment;
+            day += schedule.interval;
+          }
+        });
 
         for (let day = 1; day <= daysInMonth; day++) {
           let dayDiv = document.createElement("div");
           dayDiv.className = "day";
           dayDiv.textContent = day;
 
-          if (fumigationDays[day]) {
+          if (treatments[day]) {
             dayDiv.classList.add("fumigation");
             dayDiv.onclick = function () {
-              openModal(months[month], day, fumigationDays[day]);
+              openModal(months[month], day, treatments[day]);
             };
           }
 
@@ -184,6 +197,12 @@
         document.getElementById("calendars").appendChild(container);
       }
 
+      function openAdviceModal() {
+        document.getElementById("adviceModal").style.display = "flex";
+      }
+      function closeAdviceModal() {
+        document.getElementById("adviceModal").style.display = "none";
+      }
       function openModal(month, day, treatment) {
         document.getElementById(
           "modalTitle"
@@ -191,7 +210,6 @@
         document.getElementById("modalContent").textContent = treatment;
         document.getElementById("fumigationModal").style.display = "flex";
       }
-
       function closeModal() {
         document.getElementById("fumigationModal").style.display = "none";
       }

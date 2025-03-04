@@ -58,7 +58,7 @@
         background: #ff7043;
         color: white;
       }
-      /* Estilos del modal */
+      /* Estilos del modal mejorado para móviles */
       .modal {
         display: none;
         position: fixed;
@@ -67,24 +67,78 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 0.6);
+        display: flex;
         align-items: center;
         justify-content: center;
+        transition: opacity 0.3s ease-in-out;
       }
+
       .modal-content {
         background: white;
         padding: 20px;
-        border-radius: 10px;
+        border-radius: 15px;
         width: 90%;
-        max-width: 450px;
+        max-width: 400px;
+        max-height: 80vh; /* Se adapta mejor en móviles */
         text-align: center;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        display: flex;
+        flex-direction: column;
+        opacity: 0;
+        transform: translateY(-20px);
+        animation: fadeIn 0.3s ease-in-out forwards;
       }
+
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
       .close {
-        color: red;
-        font-size: 24px;
+        color: #d32f2f;
+        font-size: 28px;
         cursor: pointer;
-        float: right;
+        align-self: flex-end;
+        background: none;
+        border: none;
+        font-weight: bold;
+      }
+
+      .modal-content h2 {
+        font-size: 20px;
+        color: #2e7d32;
+        margin-bottom: 10px;
+      }
+
+      .modal-content ul {
+        text-align: left;
+        list-style-type: none;
+        padding: 0;
+        max-height: 55vh;
+        overflow-y: auto;
+      }
+
+      .modal-content ul li {
+        padding: 8px 0;
+        border-bottom: 1px solid #ddd;
+        font-size: 14px;
+      }
+
+      /* Estiliza mejor el scroll */
+      .modal-content ul::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .modal-content ul::-webkit-scrollbar-thumb {
+        background: #81c784;
+        border-radius: 10px;
+      }
+
+      .modal-content ul::-webkit-scrollbar-track {
+        background: #f1f1f1;
       }
     </style>
   </head>
@@ -167,11 +221,16 @@
 
     <script>
       function openAdviceModal() {
-        document.getElementById("adviceModal").style.display = "flex";
+        let modal = document.getElementById("adviceModal");
+        modal.style.display = "flex";
+        setTimeout(() => {
+          modal.querySelector(".modal-content").classList.add("fadeIn");
+        }, 10);
       }
 
       function closeAdviceModal() {
-        document.getElementById("adviceModal").style.display = "none";
+        let modal = document.getElementById("adviceModal");
+        modal.style.display = "none";
       }
 
       // Cerrar modal si se hace clic fuera del contenido

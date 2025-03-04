@@ -141,6 +141,8 @@
         background: #f1f1f1;
       }
     </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
   <body>
     <h1 style="color: #1b5e20; font-size: 28px">
@@ -240,6 +242,7 @@
           modal.style.display = "none";
         }
       };
+
       const months = [
         "Enero",
         "Febrero",
@@ -290,7 +293,7 @@
       };
 
       const currentYear = new Date().getFullYear();
-      const appliedTreatments = {}; // Para almacenar los tratamientos asignados
+      const appliedTreatments = {}; // Almacenar las fechas con tratamientos
 
       function generateAllCalendars() {
         let ajoDate = new Date(currentYear, 0, treatments.Ajo.start);
@@ -318,33 +321,28 @@
           let azufreKey = formatDate(azufreDate);
           let bacillusKey = formatDate(bacillusDate);
 
-          // **Evitar colisiones y reubicar tratamientos si están muy juntos**
           if (!hasConflict(ajoDate)) {
             appliedTreatments[ajoKey] = treatments.Ajo.treatment;
-            console.log(`✅ Asignando Ajo en ${ajoKey}`);
             ajoDate.setDate(ajoDate.getDate() + ajoInterval);
           } else {
-            ajoDate.setDate(ajoDate.getDate() + 4); // Moverlo 4 días adelante si hay conflicto
+            ajoDate.setDate(ajoDate.getDate() + 4);
           }
 
           if (!hasConflict(azufreDate)) {
             appliedTreatments[azufreKey] = treatments.Azufre.treatment;
-            console.log(`✅ Asignando Azufre en ${azufreKey}`);
             azufreDate.setDate(azufreDate.getDate() + azufreInterval);
           } else {
-            azufreDate.setDate(azufreDate.getDate() + 4); // Moverlo 4 días adelante si hay conflicto
+            azufreDate.setDate(azufreDate.getDate() + 4);
           }
 
           if (!hasConflict(bacillusDate)) {
             appliedTreatments[bacillusKey] = treatments.Bacillus.treatment;
-            console.log(`✅ Asignando Bacillus en ${bacillusKey}`);
             bacillusDate.setDate(bacillusDate.getDate() + bacillusInterval);
           } else {
-            bacillusDate.setDate(bacillusDate.getDate() + 4); // Moverlo 4 días adelante si hay conflicto
+            bacillusDate.setDate(bacillusDate.getDate() + 4);
           }
         }
 
-        // **Generar los calendarios**
         for (let month = 0; month < 12; month++) {
           let firstDayOfWeek =
             (new Date(currentYear, month, 1).getDay() + 6) % 7;
@@ -355,11 +353,8 @@
             firstDayOfWeek
           );
         }
-
-        console.log("📌 Días de fumigación asignados:", appliedTreatments);
       }
 
-      // **Función para verificar si hay conflicto con otro tratamiento cercano**
       function hasConflict(date) {
         for (let i = -3; i <= 3; i++) {
           let checkDate = new Date(date);
@@ -370,7 +365,6 @@
         return false;
       }
 
-      // **Formatea la fecha como YYYY-MM-DD**
       function formatDate(date) {
         return `${date.getFullYear()}-${(date.getMonth() + 1)
           .toString()
@@ -397,7 +391,6 @@
         let daysContainer = document.createElement("div");
         daysContainer.className = "days";
 
-        // **Espacios en blanco antes del primer día del mes**
         for (let i = 0; i < firstDayOfWeek; i++) {
           let emptyDay = document.createElement("div");
           emptyDay.className = "day";
@@ -414,9 +407,16 @@
           if (treatments[key]) {
             dayDiv.classList.add("fumigation");
             dayDiv.onclick = function () {
-              alert(
-                `Fumigación el ${day} de ${months[month]}: ${treatments[key]}`
-              );
+              Swal.fire({
+                title: `🌿 Fumigación el ${day} de ${months[month]}`,
+                text: treatments[key],
+                icon: "info",
+                confirmButtonText: "Entendido",
+                confirmButtonColor: "#2e7d32",
+                background: "#f1f8e9",
+                color: "#2e7d32",
+                showCloseButton: true,
+              });
             };
           }
 
@@ -428,7 +428,9 @@
         document.getElementById("calendars").appendChild(container);
       }
 
-      generateAllCalendars();
+      document.addEventListener("DOMContentLoaded", function () {
+        generateAllCalendars();
+      });
     </script>
   </body>
 </html>

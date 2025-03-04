@@ -103,10 +103,55 @@
         <span class="close" onclick="closeAdviceModal()">&times;</span>
         <h2>Consejos para un Huerto Ecológico</h2>
         <ul style="text-align: left">
-          <li>🌿 Usa **trampas cromáticas** para monitorear plagas.</li>
-          <li>🐞 Introduce **insectos beneficiosos** como mariquitas.</li>
+          <li>
+            🌿 Usa <strong>trampas cromáticas</strong> para monitorear plagas.
+          </li>
+          <li>
+            🐞 Introduce <strong>insectos beneficiosos</strong> como mariquitas
+            y crisopas.
+          </li>
           <li>🚜 Alterna cultivos para evitar enfermedades en el suelo.</li>
           <li>💧 Evita el exceso de riego para prevenir hongos.</li>
+          <li>
+            🍂 Aplica <strong>mantillo</strong> (mulch) para conservar la
+            humedad y reducir malas hierbas.
+          </li>
+          <li>
+            🌱 Usa <strong>compost casero</strong> para enriquecer el suelo de
+            forma natural.
+          </li>
+          <li>
+            🌾 Practica la <strong>siembra asociada</strong> (ej. zanahorias con
+            cebollas para repeler plagas).
+          </li>
+          <li>
+            ☀️ Siembra en función de las <strong>fases lunares</strong> para
+            mejorar el crecimiento.
+          </li>
+          <li>
+            🧄 Utiliza extractos naturales como
+            <strong>infusión de ajo y ortiga</strong> contra plagas.
+          </li>
+          <li>🐦 Instala casas para aves que ayuden a controlar insectos.</li>
+          <li>
+            🍀 Deja zonas con flores silvestres para atraer polinizadores como
+            abejas.
+          </li>
+          <li>
+            👨‍🌾 Usa herramientas manuales en lugar de pesticidas sintéticos.
+          </li>
+          <li>
+            ⚡ Implementa un <strong>sistema de riego por goteo</strong> para
+            ahorrar agua.
+          </li>
+          <li>
+            🛑 No uses productos químicos agresivos; opta por fertilizantes
+            ecológicos.
+          </li>
+          <li>
+            🌎 Fomenta la biodiversidad plantando variedades locales y
+            resistentes.
+          </li>
         </ul>
       </div>
     </div>
@@ -121,6 +166,21 @@
     </div>
 
     <script>
+      function openAdviceModal() {
+        document.getElementById("adviceModal").style.display = "flex";
+      }
+
+      function closeAdviceModal() {
+        document.getElementById("adviceModal").style.display = "none";
+      }
+
+      // Cerrar modal si se hace clic fuera del contenido
+      window.onclick = function (event) {
+        let modal = document.getElementById("adviceModal");
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      };
       const months = [
         "Enero",
         "Febrero",
@@ -136,64 +196,168 @@
         "Diciembre",
       ];
 
-      const fumigationSchedule = [
-        {
+      const seasons = {
+        Enero: "Invierno",
+        Febrero: "Invierno",
+        Marzo: "Primavera",
+        Abril: "Primavera",
+        Mayo: "Primavera",
+        Junio: "Verano",
+        Julio: "Verano",
+        Agosto: "Verano",
+        Septiembre: "Otoño",
+        Octubre: "Otoño",
+        Noviembre: "Otoño",
+        Diciembre: "Invierno",
+      };
+
+      // **Tratamientos y sus intervalos**
+      const treatments = {
+        Ajo: {
           start: 1,
-          interval: 15,
+          interval: { Invierno: 20, Primavera: 15, Verano: 10, Otoño: 15 },
           treatment: "Infusión de Ajo (Pulgón, mosca blanca, trips)",
         },
-        {
-          start: 5,
-          interval: 20,
-          treatment: "Bacillus thuringiensis (Tuta absoluta, orugas)",
-        },
-        {
-          start: 10,
-          interval: 25,
-          treatment: "Jabón potásico (Pulgón, cochinilla, mosca blanca)",
-        },
-        {
+        Azufre: {
           start: 15,
-          interval: 30,
+          interval: { Invierno: 35, Primavera: 30, Verano: 25, Otoño: 30 },
           treatment: "Azufre (Mildiu, oídio, ácaros en clima fresco)",
         },
-      ];
+        Bacillus: {
+          start: 5,
+          interval: { Invierno: 25, Primavera: 20, Verano: 15, Otoño: 20 },
+          treatment: "Bacillus thuringiensis (Tuta absoluta, orugas)",
+        },
+      };
 
-      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const appliedTreatments = {}; // Para almacenar los tratamientos asignados
 
-      function generateCalendar(month, year) {
-        if (month < currentMonth) return;
+      function generateAllCalendars() {
+        let ajoDate = new Date(currentYear, 0, treatments.Ajo.start);
+        let azufreDate = new Date(currentYear, 0, treatments.Azufre.start);
+        let bacillusDate = new Date(currentYear, 0, treatments.Bacillus.start);
 
+        while (
+          ajoDate.getFullYear() === currentYear ||
+          azufreDate.getFullYear() === currentYear ||
+          bacillusDate.getFullYear() === currentYear
+        ) {
+          let ajoMonth = ajoDate.getMonth();
+          let azufreMonth = azufreDate.getMonth();
+          let bacillusMonth = bacillusDate.getMonth();
+
+          let ajoSeason = seasons[months[ajoMonth]];
+          let azufreSeason = seasons[months[azufreMonth]];
+          let bacillusSeason = seasons[months[bacillusMonth]];
+
+          let ajoInterval = treatments.Ajo.interval[ajoSeason];
+          let azufreInterval = treatments.Azufre.interval[azufreSeason];
+          let bacillusInterval = treatments.Bacillus.interval[bacillusSeason];
+
+          let ajoKey = formatDate(ajoDate);
+          let azufreKey = formatDate(azufreDate);
+          let bacillusKey = formatDate(bacillusDate);
+
+          // **Evitar colisiones y reubicar tratamientos si están muy juntos**
+          if (!hasConflict(ajoDate)) {
+            appliedTreatments[ajoKey] = treatments.Ajo.treatment;
+            console.log(`✅ Asignando Ajo en ${ajoKey}`);
+            ajoDate.setDate(ajoDate.getDate() + ajoInterval);
+          } else {
+            ajoDate.setDate(ajoDate.getDate() + 4); // Moverlo 4 días adelante si hay conflicto
+          }
+
+          if (!hasConflict(azufreDate)) {
+            appliedTreatments[azufreKey] = treatments.Azufre.treatment;
+            console.log(`✅ Asignando Azufre en ${azufreKey}`);
+            azufreDate.setDate(azufreDate.getDate() + azufreInterval);
+          } else {
+            azufreDate.setDate(azufreDate.getDate() + 4); // Moverlo 4 días adelante si hay conflicto
+          }
+
+          if (!hasConflict(bacillusDate)) {
+            appliedTreatments[bacillusKey] = treatments.Bacillus.treatment;
+            console.log(`✅ Asignando Bacillus en ${bacillusKey}`);
+            bacillusDate.setDate(bacillusDate.getDate() + bacillusInterval);
+          } else {
+            bacillusDate.setDate(bacillusDate.getDate() + 4); // Moverlo 4 días adelante si hay conflicto
+          }
+        }
+
+        // **Generar los calendarios**
+        for (let month = 0; month < 12; month++) {
+          let firstDayOfWeek =
+            (new Date(currentYear, month, 1).getDay() + 6) % 7;
+          generateCalendar(
+            month,
+            currentYear,
+            appliedTreatments,
+            firstDayOfWeek
+          );
+        }
+
+        console.log("📌 Días de fumigación asignados:", appliedTreatments);
+      }
+
+      // **Función para verificar si hay conflicto con otro tratamiento cercano**
+      function hasConflict(date) {
+        for (let i = -3; i <= 3; i++) {
+          let checkDate = new Date(date);
+          checkDate.setDate(date.getDate() + i);
+          let key = formatDate(checkDate);
+          if (appliedTreatments[key]) return true;
+        }
+        return false;
+      }
+
+      // **Formatea la fecha como YYYY-MM-DD**
+      function formatDate(date) {
+        return `${date.getFullYear()}-${(date.getMonth() + 1)
+          .toString()
+          .padStart(2, "0")}-${date.getDate()}`;
+      }
+
+      function generateCalendar(month, year, treatments, firstDayOfWeek) {
         let container = document.createElement("div");
         container.className = "calendar";
 
         let monthTitle = document.createElement("div");
         monthTitle.className = "month";
-        monthTitle.textContent = months[month];
+        const seasonIcons = {
+          Invierno: "❄️",
+          Primavera: "🌸",
+          Verano: "☀️",
+          Otoño: "🍂",
+        };
+
+        monthTitle.innerHTML = `${seasonIcons[seasons[months[month]]]} ${
+          months[month]
+        }`;
 
         let daysContainer = document.createElement("div");
         daysContainer.className = "days";
 
+        // **Espacios en blanco antes del primer día del mes**
+        for (let i = 0; i < firstDayOfWeek; i++) {
+          let emptyDay = document.createElement("div");
+          emptyDay.className = "day";
+          daysContainer.appendChild(emptyDay);
+        }
+
         let daysInMonth = new Date(year, month + 1, 0).getDate();
-        let treatments = {};
-
-        fumigationSchedule.forEach((schedule) => {
-          let day = schedule.start;
-          while (day <= daysInMonth) {
-            treatments[day] = schedule.treatment;
-            day += schedule.interval;
-          }
-        });
-
         for (let day = 1; day <= daysInMonth; day++) {
           let dayDiv = document.createElement("div");
           dayDiv.className = "day";
           dayDiv.textContent = day;
 
-          if (treatments[day]) {
+          let key = `${year}-${(month + 1).toString().padStart(2, "0")}-${day}`;
+          if (treatments[key]) {
             dayDiv.classList.add("fumigation");
             dayDiv.onclick = function () {
-              openModal(months[month], day, treatments[day]);
+              alert(
+                `Fumigación el ${day} de ${months[month]}: ${treatments[key]}`
+              );
             };
           }
 
@@ -205,26 +369,7 @@
         document.getElementById("calendars").appendChild(container);
       }
 
-      function openAdviceModal() {
-        document.getElementById("adviceModal").style.display = "flex";
-      }
-      function closeAdviceModal() {
-        document.getElementById("adviceModal").style.display = "none";
-      }
-      function openModal(month, day, treatment) {
-        document.getElementById(
-          "modalTitle"
-        ).textContent = `Fumigación el ${day} de ${month}`;
-        document.getElementById("modalContent").textContent = treatment;
-        document.getElementById("fumigationModal").style.display = "flex";
-      }
-      function closeModal() {
-        document.getElementById("fumigationModal").style.display = "none";
-      }
-
-      for (let i = currentMonth; i < 12; i++) {
-        generateCalendar(i, 2025);
-      }
+      generateAllCalendars();
     </script>
   </body>
 </html>

@@ -58,7 +58,7 @@
         background: #ff7043;
         color: white;
       }
-      /* Estilos del modal mejorado para móviles */
+      /* Estilos del modal */
       .modal {
         display: none;
         position: fixed;
@@ -67,87 +67,52 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.6);
-        display: flex;
+        background-color: rgba(0, 0, 0, 0.5);
         align-items: center;
         justify-content: center;
-        transition: opacity 0.3s ease-in-out;
       }
-
       .modal-content {
         background: white;
         padding: 20px;
-        border-radius: 15px;
-        width: 90%;
-        max-width: 400px;
-        max-height: 80vh; /* Se adapta mejor en móviles */
-        text-align: center;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        display: flex;
-        flex-direction: column;
-        opacity: 0;
-        transform: translateY(-20px);
-        animation: fadeIn 0.3s ease-in-out forwards;
-      }
-
-      @keyframes fadeIn {
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .close {
-        color: #d32f2f;
-        font-size: 28px;
-        cursor: pointer;
-        align-self: flex-end;
-        background: none;
-        border: none;
-        font-weight: bold;
-      }
-
-      .modal-content h2 {
-        font-size: 20px;
-        color: #2e7d32;
-        margin-bottom: 10px;
-      }
-
-      .modal-content ul {
-        text-align: left;
-        list-style-type: none;
-        padding: 0;
-        max-height: 55vh;
-        overflow-y: auto;
-      }
-
-      .modal-content ul li {
-        padding: 8px 0;
-        border-bottom: 1px solid #ddd;
-        font-size: 14px;
-      }
-
-      /* Estiliza mejor el scroll */
-      .modal-content ul::-webkit-scrollbar {
-        width: 6px;
-      }
-
-      .modal-content ul::-webkit-scrollbar-thumb {
-        background: #81c784;
         border-radius: 10px;
+        width: 90%;
+        max-width: 450px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
       }
-
-      .modal-content ul::-webkit-scrollbar-track {
-        background: #f1f1f1;
+      .close {
+        color: red;
+        font-size: 24px;
+        cursor: pointer;
+        float: right;
       }
+      
     </style>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
   <body>
     <h1 style="color: #1b5e20; font-size: 28px">
       🌱 Huerto Travalón - Calendario de Fumigación Preventiva 🌿
     </h1>
+    <div
+      id="weather"
+      style="
+        background: #e8f5e9;
+        padding: 10px;
+        border-radius: 10px;
+        margin: 10px;
+        text-align: center;
+      "
+    >
+      <h3 id="weatherTitle">🌦️ Clima Actual</h3>
+      <!-- Este emoji cambiará dinámicamente -->
+      <p id="weatherInfo">Cargando...</p>
+    </div>
+    <div id="forecast" style="background:#e8f5e9; padding:10px; border-radius:10px; margin-top:10px; text-align:center;">
+      <h3>📅 Pronóstico Próximos Días</h3>
+      <div id="forecastInfo">Cargando...</div>
+  </div>
+  
+
     <button onclick="openAdviceModal()">
       📖 Consejos para un Huerto Ecológico
     </button>
@@ -222,17 +187,115 @@
     </div>
 
     <script>
+      async function getWeather() {
+        const apiKey = "9aaa5f5941b6f39fed52f29c409d8081"; // Reemplaza con tu API Key
+        const lat = 38.2699; // Latitud de Elche
+        const lon = -0.7126; // Longitud de Elche
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
+
+        // Mapeo de emojis según el clima
+        const weatherEmojis = {
+          Thunderstorm: "⛈️",
+          Drizzle: "🌦️",
+          Rain: "🌧️",
+          Snow: "❄️",
+          Clear: "☀️",
+          Clouds: "☁️",
+          Mist: "🌫️",
+          Smoke: "💨",
+          Haze: "🌫️",
+          Dust: "🌪️",
+          Fog: "🌫️",
+          Sand: "🏜️",
+          Ash: "🌋",
+          Squall: "🌪️",
+          Tornado: "🌪️",
+        };
+
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+
+          console.log("Respuesta de la API:", data); // Verifica en consola
+
+          if (data.cod === 200) {
+            // Obtener la descripción general del clima
+            let weatherCondition = data.weather[0].main;
+            let emoji = weatherEmojis[weatherCondition] || "🌍"; // Si no hay match, usa 🌍
+
+            // Cambiar el emoji en el título
+            document.getElementById(
+              "weatherTitle"
+            ).innerHTML = `${emoji} Clima Actual`;
+
+            // Actualizar el texto de clima
+            document.getElementById("weatherInfo").innerHTML = `
+                🌡️ ${data.main.temp}°C - ${data.weather[0].description}
+                <br>💧 Humedad: ${data.main.humidity}%
+                <br>💨 Viento: ${data.wind.speed} m/s
+            `;
+          } else {
+            document.getElementById(
+              "weatherInfo"
+            ).innerHTML = `Error: ${data.message}`;
+          }
+        } catch (error) {
+          document.getElementById(
+            "weatherInfo"
+          ).innerHTML = `Error de conexión: ${error.message}`;
+        }
+      }
+
+      // Ejecutar la función al cargar la página
+      getWeather();
+
+      async function getForecast() {
+    const apiKey = "9aaa5f5941b6f39fed52f29c409d8081"; // Reemplaza con tu API Key
+    const lat = 38.2699;
+    const lon = -0.7126;
+    const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        let forecastHtml = "";
+        let daysShown = new Set(); // Para evitar repetir días
+
+        data.list.forEach((forecast) => {
+            let date = new Date(forecast.dt * 1000);
+            let day = date.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "short" });
+
+            if (!daysShown.has(day)) {
+                daysShown.add(day);
+                let icon = forecast.weather[0].icon;
+                let iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+                forecastHtml += `
+                    <div style="display:inline-block; padding:10px;">
+                        <strong>${day}</strong><br>
+                        <img src="${iconUrl}" style="width: 40px;"><br>
+                        🌡️ ${forecast.main.temp}°C - ${forecast.weather[0].description}
+                    </div>
+                `;
+            }
+        });
+
+        document.getElementById("forecastInfo").innerHTML = forecastHtml;
+    } catch (error) {
+        document.getElementById("forecastInfo").innerHTML = "Error obteniendo el pronóstico";
+    }
+}
+
+// Ejecutar la función al cargar la página
+getForecast();
+
+
       function openAdviceModal() {
-        let modal = document.getElementById("adviceModal");
-        modal.style.display = "flex";
-        setTimeout(() => {
-          modal.querySelector(".modal-content").classList.add("fadeIn");
-        }, 10);
+        document.getElementById("adviceModal").style.display = "flex";
       }
 
       function closeAdviceModal() {
-        let modal = document.getElementById("adviceModal");
-        modal.style.display = "none";
+        document.getElementById("adviceModal").style.display = "none";
       }
 
       // Cerrar modal si se hace clic fuera del contenido
@@ -242,7 +305,6 @@
           modal.style.display = "none";
         }
       };
-
       const months = [
         "Enero",
         "Febrero",
@@ -293,7 +355,7 @@
       };
 
       const currentYear = new Date().getFullYear();
-      const appliedTreatments = {}; // Almacenar las fechas con tratamientos
+      const appliedTreatments = {}; // Para almacenar los tratamientos asignados
 
       function generateAllCalendars() {
         let ajoDate = new Date(currentYear, 0, treatments.Ajo.start);
@@ -321,28 +383,33 @@
           let azufreKey = formatDate(azufreDate);
           let bacillusKey = formatDate(bacillusDate);
 
+          // **Evitar colisiones y reubicar tratamientos si están muy juntos**
           if (!hasConflict(ajoDate)) {
             appliedTreatments[ajoKey] = treatments.Ajo.treatment;
+            console.log(`✅ Asignando Ajo en ${ajoKey}`);
             ajoDate.setDate(ajoDate.getDate() + ajoInterval);
           } else {
-            ajoDate.setDate(ajoDate.getDate() + 4);
+            ajoDate.setDate(ajoDate.getDate() + 4); // Moverlo 4 días adelante si hay conflicto
           }
 
           if (!hasConflict(azufreDate)) {
             appliedTreatments[azufreKey] = treatments.Azufre.treatment;
+            console.log(`✅ Asignando Azufre en ${azufreKey}`);
             azufreDate.setDate(azufreDate.getDate() + azufreInterval);
           } else {
-            azufreDate.setDate(azufreDate.getDate() + 4);
+            azufreDate.setDate(azufreDate.getDate() + 4); // Moverlo 4 días adelante si hay conflicto
           }
 
           if (!hasConflict(bacillusDate)) {
             appliedTreatments[bacillusKey] = treatments.Bacillus.treatment;
+            console.log(`✅ Asignando Bacillus en ${bacillusKey}`);
             bacillusDate.setDate(bacillusDate.getDate() + bacillusInterval);
           } else {
-            bacillusDate.setDate(bacillusDate.getDate() + 4);
+            bacillusDate.setDate(bacillusDate.getDate() + 4); // Moverlo 4 días adelante si hay conflicto
           }
         }
 
+        // **Generar los calendarios**
         for (let month = 0; month < 12; month++) {
           let firstDayOfWeek =
             (new Date(currentYear, month, 1).getDay() + 6) % 7;
@@ -353,8 +420,11 @@
             firstDayOfWeek
           );
         }
+
+        console.log("📌 Días de fumigación asignados:", appliedTreatments);
       }
 
+      // **Función para verificar si hay conflicto con otro tratamiento cercano**
       function hasConflict(date) {
         for (let i = -3; i <= 3; i++) {
           let checkDate = new Date(date);
@@ -365,6 +435,7 @@
         return false;
       }
 
+      // **Formatea la fecha como YYYY-MM-DD**
       function formatDate(date) {
         return `${date.getFullYear()}-${(date.getMonth() + 1)
           .toString()
@@ -391,6 +462,7 @@
         let daysContainer = document.createElement("div");
         daysContainer.className = "days";
 
+        // **Espacios en blanco antes del primer día del mes**
         for (let i = 0; i < firstDayOfWeek; i++) {
           let emptyDay = document.createElement("div");
           emptyDay.className = "day";
@@ -407,16 +479,9 @@
           if (treatments[key]) {
             dayDiv.classList.add("fumigation");
             dayDiv.onclick = function () {
-              Swal.fire({
-                title: `🌿 Fumigación el ${day} de ${months[month]}`,
-                text: treatments[key],
-                icon: "info",
-                confirmButtonText: "Entendido",
-                confirmButtonColor: "#2e7d32",
-                background: "#f1f8e9",
-                color: "#2e7d32",
-                showCloseButton: true,
-              });
+              alert(
+                `Fumigación el ${day} de ${months[month]}: ${treatments[key]}`
+              );
             };
           }
 
@@ -428,9 +493,7 @@
         document.getElementById("calendars").appendChild(container);
       }
 
-      document.addEventListener("DOMContentLoaded", function () {
-        generateAllCalendars();
-      });
+      generateAllCalendars();
     </script>
   </body>
 </html>

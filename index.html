@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Huerto Travalón - Calendario de Fumigación</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        text-align: center;
+        background-color: #e8f5e9;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+      }
+      .calendar {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 350px;
+        transition: transform 0.2s;
+      }
+      .calendar:hover {
+        transform: scale(1.05);
+      }
+      .month {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #2e7d32;
+      }
+      .days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+      }
+      .day {
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 14px;
+        background: #c8e6c9;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .day:hover {
+        background: #81c784;
+      }
+      .fumigation {
+        background: #ff7043;
+        color: white;
+      }
+      /* Estilos del modal */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 450px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      }
+      .close {
+        color: red;
+        font-size: 24px;
+        cursor: pointer;
+        float: right;
+      }
+      
+    </style>
+  </head>
+  <body>
+    <h1 style="color: #1b5e20; font-size: 28px">
+      🌱 Huerto Travalón - Calendario de Fumigación Preventiva 🌿
+    </h1>
+    <div
+      id="weather"
+      style="
+        background: #e8f5e9;
+        padding: 10px;
+        border-radius: 10px;
+        margin: 10px;
+        text-align: center;
+      "
+    >
+      <h3 id="weatherTitle">🌦️ Clima Actual</h3>
+      <!-- Este emoji cambiará dinámicamente -->
+      <p id="weatherInfo">Cargando...</p>
+    </div>
+    <div id="forecast" style="background:#e8f5e9; padding:10px; border-radius:10px; margin-top:10px; text-align:center;">
+      <h3>📅 Pronóstico Próximos Días</h3>
+      <div id="forecastInfo">Cargando...</div>
+  </div>
+  
+
+    <button onclick="openAdviceModal()">
+      📖 Consejos para un Huerto Ecológico
+    </button>
+    <div class="container" id="calendars"></div>
+
+    <!-- Modal Consejos -->
+    <div id="adviceModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" onclick="closeAdviceModal()">&times;</span>
+        <h2>Consejos para un Huerto Ecológico</h2>
+        <ul style="text-align: left">
+          <li>
+            🌿 Usa <strong>trampas cromáticas</strong> para monitorear plagas.
+          </li>
+          <li>
+            🐞 Introduce <strong>insectos beneficiosos</strong> como mariquitas
+            y crisopas.
+          </li>
+          <li>🚜 Alterna cultivos para evitar enfermedades en el suelo.</li>
+          <li>💧 Evita el exceso de riego para prevenir hongos.</li>
+          <li>
+            🍂 Aplica <strong>mantillo</strong> (mulch) para conservar la
+            humedad y reducir malas hierbas.
+          </li>
+          <li>
+            🌱 Usa <strong>compost casero</strong> para enriquecer el suelo de
+            forma natural.
+          </li>
+          <li>
+            🌾 Practica la <strong>siembra asociada</strong> (ej. zanahorias con
+            cebollas para repeler plagas).
+          </li>
+          <li>
+            ☀️ Siembra en función de las <strong>fases lunares</strong> para
+            mejorar el crecimiento.
+          </li>
+          <li>
+            🧄 Utiliza extractos naturales como
+            <strong>infusión de ajo y ortiga</strong> contra plagas.
+          </li>
+          <li>🐦 Instala casas para aves que ayuden a controlar insectos.</li>
+          <li>
+            🍀 Deja zonas con flores silvestres para atraer polinizadores como
+            abejas.
+          </li>
+          <li>
+            👨‍🌾 Usa herramientas manuales en lugar de pesticidas sintéticos.
+          </li>
+          <li>
+            ⚡ Implementa un <strong>sistema de riego por goteo</strong> para
+            ahorrar agua.
+          </li>
+          <li>
+            🛑 No uses productos químicos agresivos; opta por fertilizantes
+            ecológicos.
+          </li>
+          <li>
+            🌎 Fomenta la biodiversidad plantando variedades locales y
+            resistentes.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Modal Fumigación -->
+    <div id="fumigationModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle"></h2>
+        <p id="modalContent"></p>
+      </div>
+    </div>
+
+    <script>
+      async function getWeather() {
+        const apiKey = "9aaa5f5941b6f39fed52f29c409d8081"; // Reemplaza con tu API Key
+        const lat = 38.2699; // Latitud de Elche
+        const lon = -0.7126; // Longitud de Elche
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
+
+        // Mapeo de emojis según el clima
+        const weatherEmojis = {
+          Thunderstorm: "⛈️",
+          Drizzle: "🌦️",
+          Rain: "🌧️",
+          Snow: "❄️",
+          Clear: "☀️",
+          Clouds: "☁️",
+          Mist: "🌫️",
+          Smoke: "💨",
+          Haze: "🌫️",
+          Dust: "🌪️",
+          Fog: "🌫️",
+          Sand: "🏜️",
+          Ash: "🌋",
+          Squall: "🌪️",
+          Tornado: "🌪️",
+        };
+
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+
+          console.log("Respuesta de la API:", data); // Verifica en consola
+
+          if (data.cod === 200) {
+            // Obtener la descripción general del clima
+            let weatherCondition = data.weather[0].main;
+            let emoji = weatherEmojis[weatherCondition] || "🌍"; // Si no hay match, usa 🌍
+
+            // Cambiar el emoji en el título
+            document.getElementById(
+              "weatherTitle"
+            ).innerHTML = `${emoji} Clima Actual`;
+
+            // Actualizar el texto de clima
+            document.getElementById("weatherInfo").innerHTML = `
+                🌡️ ${data.main.temp}°C - ${data.weather[0].description}
+                <br>💧 Humedad: ${data.main.humidity}%
+                <br>💨 Viento: ${data.wind.speed} m/s
+            `;
+          } else {
+            document.getElementById(
+              "weatherInfo"
+            ).innerHTML = `Error: ${data.message}`;
+          }
+        } catch (error) {
+          document.getElementById(
+            "weatherInfo"
+          ).innerHTML = `Error de conexión: ${error.message}`;
+        }
+      }
+
+      // Ejecutar la función al cargar la página
+      getWeather();
+
+      async function getForecast() {
+    const apiKey = "9aaa5f5941b6f39fed52f29c409d8081"; // Reemplaza con tu API Key
+    const lat = 38.2699;
+    const lon = -0.7126;
+    const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        let forecastHtml = "";
+        let daysShown = new Set(); // Para evitar repetir días
+
+        data.list.forEach((forecast) => {
+            let date = new Date(forecast.dt * 1000);
+            let day = date.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "short" });
+
+            if (!daysShown.has(day)) {
+                daysShown.add(day);
+                let icon = forecast.weather[0].icon;
+                let iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+                forecastHtml += `
+                    <div style="display:inline-block; padding:10px;">
+                        <strong>${day}</strong><br>
+                        <img src="${iconUrl}" style="width: 40px;"><br>
+                        🌡️ ${forecast.main.temp}°C - ${forecast.weather[0].description}
+                    </div>
+                `;
+            }
+        });
+
+        document.getElementById("forecastInfo").innerHTML = forecastHtml;
+    } catch (error) {
+        document.getElementById("forecastInfo").innerHTML = "Error obteniendo el pronóstico";
+    }
+}
+
+// Ejecutar la función al cargar la página
+getForecast();
+
+
+      function openAdviceModal() {
+        document.getElementById("adviceModal").style.display = "flex";
+      }
+
+      function closeAdviceModal() {
+        document.getElementById("adviceModal").style.display = "none";
+      }
+
+      // Cerrar modal si se hace clic fuera del contenido
+      window.onclick = function (event) {
+        let modal = document.getElementById("adviceModal");
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      };
+      const months = [
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre",
+      ];
+
+      const seasons = {
+        Enero: "Invierno",
+        Febrero: "Invierno",
+        Marzo: "Primavera",
+        Abril: "Primavera",
+        Mayo: "Primavera",
+        Junio: "Verano",
+        Julio: "Verano",
+        Agosto: "Verano",
+        Septiembre: "Otoño",
+        Octubre: "Otoño",
+        Noviembre: "Otoño",
+        Diciembre: "Invierno",
+      };
+
+      // **Tratamientos y sus intervalos**
+      const treatments = {
+        Ajo: {
+          start: 1,
+          interval: { Invierno: 20, Primavera: 15, Verano: 10, Otoño: 15 },
+          treatment: "Infusión de Ajo (Pulgón, mosca blanca, trips)",
+        },
+        Azufre: {
+          start: 15,
+          interval: { Invierno: 35, Primavera: 30, Verano: 25, Otoño: 30 },
+          treatment: "Azufre (Mildiu, oídio, ácaros en clima fresco)",
+        },
+        Bacillus: {
+          start: 5,
+          interval: { Invierno: 25, Primavera: 20, Verano: 15, Otoño: 20 },
+          treatment: "Bacillus thuringiensis (Tuta absoluta, orugas)",
+        },
+      };
+
+      const currentYear = new Date().getFullYear();
+      const appliedTreatments = {}; // Para almacenar los tratamientos asignados
+
+      function generateAllCalendars() {
+        let ajoDate = new Date(currentYear, 0, treatments.Ajo.start);
+        let azufreDate = new Date(currentYear, 0, treatments.Azufre.start);
+        let bacillusDate = new Date(currentYear, 0, treatments.Bacillus.start);
+
+        while (
+          ajoDate.getFullYear() === currentYear ||
+          azufreDate.getFullYear() === currentYear ||
+          bacillusDate.getFullYear() === currentYear
+        ) {
+          let ajoMonth = ajoDate.getMonth();
+          let azufreMonth = azufreDate.getMonth();
+          let bacillusMonth = bacillusDate.getMonth();
+
+          let ajoSeason = seasons[months[ajoMonth]];
+          let azufreSeason = seasons[months[azufreMonth]];
+          let bacillusSeason = seasons[months[bacillusMonth]];
+
+          let ajoInterval = treatments.Ajo.interval[ajoSeason];
+          let azufreInterval = treatments.Azufre.interval[azufreSeason];
+          let bacillusInterval = treatments.Bacillus.interval[bacillusSeason];
+
+          let ajoKey = formatDate(ajoDate);
+          let azufreKey = formatDate(azufreDate);
+          let bacillusKey = formatDate(bacillusDate);
+
+          // **Evitar colisiones y reubicar tratamientos si están muy juntos**
+          if (!hasConflict(ajoDate)) {
+            appliedTreatments[ajoKey] = treatments.Ajo.treatment;
+            console.log(`✅ Asignando Ajo en ${ajoKey}`);
+            ajoDate.setDate(ajoDate.getDate() + ajoInterval);
+          } else {
+            ajoDate.setDate(ajoDate.getDate() + 4); // Moverlo 4 días adelante si hay conflicto
+          }
+
+          if (!hasConflict(azufreDate)) {
+            appliedTreatments[azufreKey] = treatments.Azufre.treatment;
+            console.log(`✅ Asignando Azufre en ${azufreKey}`);
+            azufreDate.setDate(azufreDate.getDate() + azufreInterval);
+          } else {
+            azufreDate.setDate(azufreDate.getDate() + 4); // Moverlo 4 días adelante si hay conflicto
+          }
+
+          if (!hasConflict(bacillusDate)) {
+            appliedTreatments[bacillusKey] = treatments.Bacillus.treatment;
+            console.log(`✅ Asignando Bacillus en ${bacillusKey}`);
+            bacillusDate.setDate(bacillusDate.getDate() + bacillusInterval);
+          } else {
+            bacillusDate.setDate(bacillusDate.getDate() + 4); // Moverlo 4 días adelante si hay conflicto
+          }
+        }
+
+        // **Generar los calendarios**
+        for (let month = 0; month < 12; month++) {
+          let firstDayOfWeek =
+            (new Date(currentYear, month, 1).getDay() + 6) % 7;
+          generateCalendar(
+            month,
+            currentYear,
+            appliedTreatments,
+            firstDayOfWeek
+          );
+        }
+
+        console.log("📌 Días de fumigación asignados:", appliedTreatments);
+      }
+
+      // **Función para verificar si hay conflicto con otro tratamiento cercano**
+      function hasConflict(date) {
+        for (let i = -3; i <= 3; i++) {
+          let checkDate = new Date(date);
+          checkDate.setDate(date.getDate() + i);
+          let key = formatDate(checkDate);
+          if (appliedTreatments[key]) return true;
+        }
+        return false;
+      }
+
+      // **Formatea la fecha como YYYY-MM-DD**
+      function formatDate(date) {
+        return `${date.getFullYear()}-${(date.getMonth() + 1)
+          .toString()
+          .padStart(2, "0")}-${date.getDate()}`;
+      }
+
+      function generateCalendar(month, year, treatments, firstDayOfWeek) {
+        let container = document.createElement("div");
+        container.className = "calendar";
+
+        let monthTitle = document.createElement("div");
+        monthTitle.className = "month";
+        const seasonIcons = {
+          Invierno: "❄️",
+          Primavera: "🌸",
+          Verano: "☀️",
+          Otoño: "🍂",
+        };
+
+        monthTitle.innerHTML = `${seasonIcons[seasons[months[month]]]} ${
+          months[month]
+        }`;
+
+        let daysContainer = document.createElement("div");
+        daysContainer.className = "days";
+
+        // **Espacios en blanco antes del primer día del mes**
+        for (let i = 0; i < firstDayOfWeek; i++) {
+          let emptyDay = document.createElement("div");
+          emptyDay.className = "day";
+          daysContainer.appendChild(emptyDay);
+        }
+
+        let daysInMonth = new Date(year, month + 1, 0).getDate();
+        for (let day = 1; day <= daysInMonth; day++) {
+          let dayDiv = document.createElement("div");
+          dayDiv.className = "day";
+          dayDiv.textContent = day;
+
+          let key = `${year}-${(month + 1).toString().padStart(2, "0")}-${day}`;
+          if (treatments[key]) {
+            dayDiv.classList.add("fumigation");
+            dayDiv.onclick = function () {
+              alert(
+                `Fumigación el ${day} de ${months[month]}: ${treatments[key]}`
+              );
+            };
+          }
+
+          daysContainer.appendChild(dayDiv);
+        }
+
+        container.appendChild(monthTitle);
+        container.appendChild(daysContainer);
+        document.getElementById("calendars").appendChild(container);
+      }
+
+      generateAllCalendars();
+    </script>
+  </body>
+</html>

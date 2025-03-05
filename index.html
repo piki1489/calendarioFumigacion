@@ -52,7 +52,7 @@
         border-radius: 10px;
         margin: 10px auto;
         width: 90%;
-        max-width: 400px;
+        max-width: 1200px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
 
@@ -141,33 +141,72 @@
         float: right;
       }
 
-      /* Media queries para móviles */
-      @media (max-width: 600px) {
-        h1 {
-          font-size: 1.3rem;
-        }
+        /* Contenedor del pronóstico */
+        #forecastInfo {
+          display: grid;
+          gap: 15px;
+          justify-content: center;
+          margin: 20px auto;
+          max-width: 1000px;
+      }
 
-        button {
-          width: 100%;
-          padding: 12px;
-          font-size: 1rem;
-        }
+      /* Estilos de cada día */
+      .forecast-day {
+          background: #ffffff;
+          border: 2px solid #ff7043;
+          border-radius: 12px;
+          padding: 15px;
+          text-align: center;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
 
-        #weather,
-        #forecast {
-          width: 100%;
-          padding: 8px;
-        }
+      .forecast-day:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      }
 
-        .calendar {
-          width: 100%;
-          padding: 8px;
-        }
+      .forecast-day img {
+          width: 50px;
+          height: 50px;
+          margin-bottom: 10px;
+      }
 
-        .day {
-          padding: 6px;
-          font-size: 0.8rem;
-        }
+      .forecast-day strong {
+          font-size: 1.1rem;
+          color: #2e7d32;
+          display: block;
+          margin-bottom: 5px;
+      }
+
+      .forecast-day span {
+          font-size: 0.9rem;
+          color: #555;
+      }
+
+      /* Media queries para diseño responsive */
+      @media (min-width: 1024px) {
+          /* PC: 3 columnas y 2 filas */
+          #forecastInfo {
+              grid-template-columns: repeat(3, 1fr);
+          }
+      }
+
+      @media (max-width: 1023px) and (min-width: 768px) {
+          /* Tablet: 2 columnas y 3 filas */
+          #forecastInfo {
+              grid-template-columns: repeat(2, 1fr);
+          }
+      }
+
+      @media (max-width: 767px) {
+          /* Móvil: 1 columna y solo 3 días */
+          #forecastInfo {
+              grid-template-columns: 1fr;
+          }
+          .forecast-day:nth-child(n + 4) {
+              display: none; /* Oculta los días después del tercero */
+          }
       }
     </style>
   </head>
@@ -319,50 +358,51 @@
       getWeather();
 
       async function getForecast() {
-        const apiKey = "9aaa5f5941b6f39fed52f29c409d8081"; // Reemplaza con tu API Key
-        const lat = 38.2699;
-        const lon = -0.7126;
-        const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
+            const apiKey = "9aaa5f5941b6f39fed52f29c409d8081"; // Reemplaza con tu API Key
+            const lat = 38.2699; // Latitud de Elche
+            const lon = -0.7126; // Longitud de Elche
+            const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
 
-        try {
-          const response = await fetch(url);
-          const data = await response.json();
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
 
-          let forecastHtml = "";
-          let daysShown = new Set(); // Para evitar repetir días
+                let forecastHtml = "";
+                let daysShown = new Set(); // Para evitar repetir días
+                let dayCount = 0;
 
-          data.list.forEach((forecast) => {
-            let date = new Date(forecast.dt * 1000);
-            let day = date.toLocaleDateString("es-ES", {
-              weekday: "long",
-              day: "numeric",
-              month: "short",
-            });
+                data.list.forEach((forecast) => {
+                    let date = new Date(forecast.dt * 1000);
+                    let day = date.toLocaleDateString("es-ES", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "short",
+                    });
 
-            if (!daysShown.has(day)) {
-              daysShown.add(day);
-              let icon = forecast.weather[0].icon;
-              let iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
-              forecastHtml += `
-                    <div style="display:inline-block; padding:10px;">
-                        <strong>${day}</strong><br>
-                        <img src="${iconUrl}" style="width: 40px;"><br>
-                        🌡️ ${forecast.main.temp}°C - ${forecast.weather[0].description}
-                    </div>
-                `;
+                    if (!daysShown.has(day) && dayCount < 6) { // Mostrar solo 6 días
+                        daysShown.add(day);
+                        dayCount++;
+                        let icon = forecast.weather[0].icon;
+                        let iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+                        forecastHtml += `
+                            <div class="forecast-day">
+                                <img src="${iconUrl}" alt="${forecast.weather[0].description}">
+                                <strong>${day}</strong>
+                                <span>🌡️ ${forecast.main.temp}°C - ${forecast.weather[0].description}</span>
+                            </div>
+                        `;
+                    }
+                });
+
+                document.getElementById("forecastInfo").innerHTML = forecastHtml;
+            } catch (error) {
+                document.getElementById("forecastInfo").innerHTML =
+                    "Error obteniendo el pronóstico";
             }
-          });
-
-          document.getElementById("forecastInfo").innerHTML = forecastHtml;
-        } catch (error) {
-          document.getElementById("forecastInfo").innerHTML =
-            "Error obteniendo el pronóstico";
         }
-      }
 
-      // Ejecutar la función al cargar la página
-      getForecast();
-
+        // Ejecutar la función al cargar la página
+        getForecast();
       function openAdviceModal() {
         document.getElementById("adviceModal").style.display = "flex";
       }

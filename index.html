@@ -104,6 +104,15 @@
       .day:hover {
         background: #81c784;
       }
+      .day.fumigation {
+        background-color: #ffeb3b; 
+        cursor: pointer;
+      }
+
+      .day.fumigation.completed {
+        background-color: #8bc34a; 
+        color: white;
+      }
 
       .fumigation {
         background: #ff7043;
@@ -120,8 +129,7 @@
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
-        align-items: center;
-        justify-content: center;
+        overflow-y: auto; /* Permite scroll en el modal */
       }
 
       .modal-content {
@@ -129,11 +137,13 @@
         padding: 20px;
         border-radius: 10px;
         width: 90%;
-        max-width: 400px;
-        text-align: center;
+        max-width: 800px;
+        margin: 20px auto; /* Margen superior e inferior */
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        position: relative;
+        max-height: 90vh; /* Altura máxima del 90% del viewport */
+        overflow-y: auto; /* Scroll interno si el contenido es muy largo */
       }
-
       .close {
         color: red;
         font-size: 1.5rem;
@@ -141,74 +151,119 @@
         float: right;
       }
 
-        /* Contenedor del pronóstico */
-        #forecastInfo {
-          display: grid;
-          gap: 15px;
-          justify-content: center;
-          margin: 20px auto;
-          max-width: 1000px;
+      /* Contenedor del pronóstico */
+      #forecastInfo {
+        display: grid;
+        gap: 15px;
+        justify-content: center;
+        margin: 20px auto;
+        max-width: 1000px;
       }
 
       /* Estilos de cada día */
       .forecast-day {
-          background: #ffffff;
-          border: 2px solid #ff7043;
-          border-radius: 12px;
-          padding: 15px;
-          text-align: center;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: #ffffff;
+        border: 2px solid #ff7043;
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
       }
 
       .forecast-day:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
       }
 
       .forecast-day img {
-          width: 50px;
-          height: 50px;
-          margin-bottom: 10px;
+        width: 50px;
+        height: 50px;
+        margin-bottom: 10px;
       }
 
       .forecast-day strong {
-          font-size: 1.1rem;
-          color: #2e7d32;
-          display: block;
-          margin-bottom: 5px;
+        font-size: 1.1rem;
+        color: #2e7d32;
+        display: block;
+        margin-bottom: 5px;
       }
 
       .forecast-day span {
-          font-size: 0.9rem;
-          color: #555;
+        font-size: 0.9rem;
+        color: #555;
+      }
+
+      /* Ajustes para el contenido del modal */
+      .advice-sections {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 25px;
+      }
+
+      .advice-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 4px solid #4caf50;
+      }
+
+      .advice-section h3 {
+        margin-top: 0;
+        color: #2e7d32;
+      }
+
+      .preparation-card {
+        background: #fff3e0;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px dashed #ffa000;
+        margin-top: 20px;
+      }
+
+      .preparation-card h4 {
+        margin-top: 0;
+        color: #ff6f00;
+      }
+
+      /* Mejoras para listas */
+      .modal-content ul {
+        padding-left: 20px;
+      }
+
+      .modal-content li {
+        margin-bottom: 8px;
+        line-height: 1.4;
       }
 
       /* Media queries para diseño responsive */
       @media (min-width: 1024px) {
-          /* PC: 3 columnas y 2 filas */
-          #forecastInfo {
-              grid-template-columns: repeat(3, 1fr);
-          }
+        /* PC: 3 columnas y 2 filas */
+        #forecastInfo {
+          grid-template-columns: repeat(3, 1fr);
+        }
       }
 
       @media (max-width: 1023px) and (min-width: 768px) {
-          /* Tablet: 2 columnas y 3 filas */
-          #forecastInfo {
-              grid-template-columns: repeat(2, 1fr);
-          }
+        /* Tablet: 2 columnas y 3 filas */
+        #forecastInfo {
+          grid-template-columns: repeat(2, 1fr);
+        }
       }
 
       @media (max-width: 767px) {
-          /* Móvil: 1 columna y solo 3 días */
-          #forecastInfo {
-              grid-template-columns: 1fr;
-          }
-          .forecast-day:nth-child(n + 4) {
-              display: none; /* Oculta los días después del tercero */
-          }
+        /* Móvil: 1 columna y solo 3 días */
+        #forecastInfo {
+          grid-template-columns: 1fr;
+        }
+        .forecast-day:nth-child(n + 4) {
+          display: none; /* Oculta los días después del tercero */
+        }
       }
     </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
   <body>
     <h1>🌱 Huerto Travalón - Calendario de Fumigación Preventiva 🌿</h1>
@@ -227,61 +282,175 @@
     <div class="container" id="calendars"></div>
 
     <!-- Modal Consejos -->
+    <!-- Modal Consejos -->
     <div id="adviceModal" class="modal">
       <div class="modal-content">
         <span class="close" onclick="closeAdviceModal()">&times;</span>
-        <h2>Consejos para un Huerto Ecológico</h2>
-        <ul style="text-align: left">
-          <li>
-            🌿 Usa <strong>trampas cromáticas</strong> para monitorear plagas.
-          </li>
-          <li>
-            🐞 Introduce <strong>insectos beneficiosos</strong> como mariquitas
-            y crisopas.
-          </li>
-          <li>🚜 Alterna cultivos para evitar enfermedades en el suelo.</li>
-          <li>💧 Evita el exceso de riego para prevenir hongos.</li>
-          <li>
-            🍂 Aplica <strong>mantillo</strong> (mulch) para conservar la
-            humedad y reducir malas hierbas.
-          </li>
-          <li>
-            🌱 Usa <strong>compost casero</strong> para enriquecer el suelo de
-            forma natural.
-          </li>
-          <li>
-            🌾 Practica la <strong>siembra asociada</strong> (ej. zanahorias con
-            cebollas para repeler plagas).
-          </li>
-          <li>
-            ☀️ Siembra en función de las <strong>fases lunares</strong> para
-            mejorar el crecimiento.
-          </li>
-          <li>
-            🧄 Utiliza extractos naturales como
-            <strong>infusión de ajo y ortiga</strong> contra plagas.
-          </li>
-          <li>🐦 Instala casas para aves que ayuden a controlar insectos.</li>
-          <li>
-            🍀 Deja zonas con flores silvestres para atraer polinizadores como
-            abejas.
-          </li>
-          <li>
-            👨‍🌾 Usa herramientas manuales en lugar de pesticidas sintéticos.
-          </li>
-          <li>
-            ⚡ Implementa un <strong>sistema de riego por goteo</strong> para
-            ahorrar agua.
-          </li>
-          <li>
-            🛑 No uses productos químicos agresivos; opta por fertilizantes
-            ecológicos.
-          </li>
-          <li>
-            🌎 Fomenta la biodiversidad plantando variedades locales y
-            resistentes.
-          </li>
-        </ul>
+        <h2>Guía Completa para un Huerto Ecológico</h2>
+
+        <div class="advice-sections">
+          <!-- Secciones de consejos (mismo contenido que antes) -->
+          <!-- CONSEJOS BÁSICOS -->
+          <div class="advice-section">
+            <h3>🌱 Consejos Fundamentales</h3>
+            <ul>
+              <li>
+                <strong>Rotación de cultivos:</strong> Evita plantar lo mismo en
+                el mismo lugar consecutivamente
+              </li>
+              <li>
+                <strong>Asociación beneficiosa:</strong> Albahaca con tomates,
+                caléndulas entre hortalizas
+              </li>
+              <li>
+                <strong>Riego matinal:</strong> Previene hongos y evita
+                quemaduras foliares
+              </li>
+              <li>
+                <strong>Observación diaria:</strong> Revisa el envés de las
+                hojas donde se esconden plagas
+              </li>
+            </ul>
+          </div>
+
+          <!-- FUNGICIDAS CASEROS -->
+          <div class="advice-section">
+            <h3>🍄 Fungicidas Ecológicos</h3>
+            <ul>
+              <li>
+                <strong>Infusión de cola de caballo:</strong> Rico en silicio
+                contra mildiu y oídio
+              </li>
+              <li>
+                <strong>Leche diluida (1:9):</strong> Para prevenir hongos en
+                hojas (aplicar en días soleados)
+              </li>
+              <li>
+                <strong>Bicarbonato sódico:</strong> 1 cucharada + 1L agua +
+                jabón neutro contra hongos
+              </li>
+              <li>
+                <strong>Canela en polvo:</strong> Espolvorear en semilleros como
+                antifúngico
+              </li>
+            </ul>
+          </div>
+
+          <div class="advice-section">
+            <h3>🐞 Control Ecológico de Plagas</h3>
+            <ul>
+              <li>
+                🍺 <strong>Trampas de cerveza:</strong> Latas enterradas a ras
+                de suelo con 3cm de cerveza (cambiar cada 3 días)
+              </li>
+              <li>
+                🌼 <strong>Plantas guardianas:</strong> <br />- Caléndula →
+                repele nematodos <br />- Albahaca → contra mosca blanca <br />-
+                Capuchinas → trampa para pulgones
+              </li>
+              <li>
+                🏨 <strong>Hoteles de insectos:</strong> <br />- Bloques de
+                madera con agujeros de 2-8mm (abejas solitarias) <br />- Cañas
+                atadas en manojos (crisopas) <br />- Piedras apiladas
+                (escarabajos depredadores)
+              </li>
+              <li>
+                🌿 <strong>Preparado de neem:</strong> <br />- 5ml aceite neem +
+                2ml jabón potásico + 1L agua <br />- Pulverizar cada 15 días
+                (evitar horas de sol)
+              </li>
+              <li>
+                🥚 <strong>Barreras creativas:</strong> <br />- Anillos de lana
+                de oveja en base de plantas (contra minadores) <br />- Collares
+                de cartón forrado con cobre para tallos (anti-caracoles)
+              </li>
+            </ul>
+          </div>
+
+          <!-- INSECTICIDAS NATURALES -->
+          <div class="advice-section">
+            <h3>🐜 Insecticidas Caseros</h3>
+            <ul>
+              <li>
+                <strong>Purín de ortiga:</strong> Fermentado 15 días (repelente
+                y fortificante)
+              </li>
+              <li>
+                <strong>Jabón potásico:</strong> 20ml por litro contra pulgones
+                y mosca blanca
+              </li>
+              <li>
+                <strong>Ajo + chile:</strong> Licuar con agua, colar y
+                pulverizar (repelente general)
+              </li>
+              <li>
+                <strong>Ceniza de madera:</strong> Espolvorear contra babosas y
+                caracoles
+              </li>
+            </ul>
+          </div>
+
+          <!-- ABONOS NATURALES -->
+          <div class="advice-section">
+            <h3>💩 Abonos Caseros</h3>
+            <ul>
+              <li>
+                <strong>Té de plátano:</strong> Cascas en agua 48h (rico en
+                potasio)
+              </li>
+              <li>
+                <strong>Agua de cocción:</strong> De verduras o huevos
+                (enfriada)
+              </li>
+              <li>
+                <strong>Humus de lombriz:</strong> Fácil de producir en
+                vermicompostera
+              </li>
+              <li>
+                <strong>Posos de café:</strong> Secos y esparcidos (acidificante
+                para algunas plantas)
+              </li>
+            </ul>
+          </div>
+
+          <!-- PREPARACIONES ESPECIALES -->
+          <div class="advice-section">
+            <h3>🧪 Preparados Avanzados</h3>
+            <ul>
+              <li>
+                <strong>Lactobacilos:</strong> Fermento lácteo para fortalecer
+                plantas
+              </li>
+              <li>
+                <strong>Bocashi:</strong> Abono fermentado rápido (2 semanas)
+              </li>
+              <li>
+                <strong>Microorganismos eficaces (EM):</strong> Activadores de
+                suelo
+              </li>
+              <li>
+                <strong>Biofertilizante foliar:</strong> A base de estiércol
+                fermentado
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="preparation-card">
+          <h4>🧴 Receta Estrella: Insecticida Triple Acción</h4>
+          <p>
+            <strong>Ingredientes:</strong><br />
+            - 5 dientes de ajo<br />
+            - 1 cebolla mediana<br />
+            - 2 cucharadas de chile picante<br />
+            - 1L de agua<br />
+            - 1 cucharada de jabón neutro
+          </p>
+          <p>
+            <strong>Preparación:</strong> Licuar todo, fermentar 24h, colar y
+            pulverizar.
+          </p>
+        </div>
       </div>
     </div>
 
@@ -358,51 +527,52 @@
       getWeather();
 
       async function getForecast() {
-            const apiKey = "9aaa5f5941b6f39fed52f29c409d8081"; // Reemplaza con tu API Key
-            const lat = 38.2699; // Latitud de Elche
-            const lon = -0.7126; // Longitud de Elche
-            const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
+        const apiKey = "9aaa5f5941b6f39fed52f29c409d8081"; // Reemplaza con tu API Key
+        const lat = 38.2699; // Latitud de Elche
+        const lon = -0.7126; // Longitud de Elche
+        const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
 
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
 
-                let forecastHtml = "";
-                let daysShown = new Set(); // Para evitar repetir días
-                let dayCount = 0;
+          let forecastHtml = "";
+          let daysShown = new Set(); // Para evitar repetir días
+          let dayCount = 0;
 
-                data.list.forEach((forecast) => {
-                    let date = new Date(forecast.dt * 1000);
-                    let day = date.toLocaleDateString("es-ES", {
-                        weekday: "long",
-                        day: "numeric",
-                        month: "short",
-                    });
+          data.list.forEach((forecast) => {
+            let date = new Date(forecast.dt * 1000);
+            let day = date.toLocaleDateString("es-ES", {
+              weekday: "long",
+              day: "numeric",
+              month: "short",
+            });
 
-                    if (!daysShown.has(day) && dayCount < 6) { // Mostrar solo 6 días
-                        daysShown.add(day);
-                        dayCount++;
-                        let icon = forecast.weather[0].icon;
-                        let iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
-                        forecastHtml += `
+            if (!daysShown.has(day) && dayCount < 6) {
+              // Mostrar solo 6 días
+              daysShown.add(day);
+              dayCount++;
+              let icon = forecast.weather[0].icon;
+              let iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+              forecastHtml += `
                             <div class="forecast-day">
                                 <img src="${iconUrl}" alt="${forecast.weather[0].description}">
                                 <strong>${day}</strong>
                                 <span>🌡️ ${forecast.main.temp}°C - ${forecast.weather[0].description}</span>
                             </div>
                         `;
-                    }
-                });
-
-                document.getElementById("forecastInfo").innerHTML = forecastHtml;
-            } catch (error) {
-                document.getElementById("forecastInfo").innerHTML =
-                    "Error obteniendo el pronóstico";
             }
-        }
+          });
 
-        // Ejecutar la función al cargar la página
-        getForecast();
+          document.getElementById("forecastInfo").innerHTML = forecastHtml;
+        } catch (error) {
+          document.getElementById("forecastInfo").innerHTML =
+            "Error obteniendo el pronóstico";
+        }
+      }
+
+      // Ejecutar la función al cargar la página
+      getForecast();
       function openAdviceModal() {
         document.getElementById("adviceModal").style.display = "flex";
       }
@@ -555,6 +725,7 @@
           .padStart(2, "0")}-${date.getDate()}`;
       }
 
+      // Modifica la función generateCalendar así:
       function generateCalendar(month, year, treatments, firstDayOfWeek) {
         let container = document.createElement("div");
         container.className = "calendar";
@@ -575,7 +746,12 @@
         let daysContainer = document.createElement("div");
         daysContainer.className = "days";
 
-        // **Espacios en blanco antes del primer día del mes**
+        // Cargar días completados del localStorage
+        const completedDays = JSON.parse(
+          localStorage.getItem("completedFumigationDays") || "{}"
+        );
+
+        // Espacios en blanco antes del primer día del mes
         for (let i = 0; i < firstDayOfWeek; i++) {
           let emptyDay = document.createElement("div");
           emptyDay.className = "day";
@@ -591,10 +767,42 @@
           let key = `${year}-${(month + 1).toString().padStart(2, "0")}-${day}`;
           if (treatments[key]) {
             dayDiv.classList.add("fumigation");
+
+            // Si el día está marcado como completado
+            if (completedDays[key]) {
+              dayDiv.classList.add("completed");
+            }
+
             dayDiv.onclick = function () {
-              alert(
-                `Fumigación el ${day} de ${months[month]}: ${treatments[key]}`
-              );
+              Swal.fire({
+                title: `Fumigación programada`,
+                html: `<b>${day} de ${months[month]}</b><br><br>${treatments[key]}`,
+                icon: "info",
+                showCancelButton: !completedDays[key], // Solo mostrar cancelar si no está completado
+                confirmButtonText: completedDays[key]
+                  ? "Completado ✔️"
+                  : "Marcar como completado",
+                cancelButtonText: "Cerrar",
+                background: "#f8f9fa",
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  // Marcar como completado
+                  completedDays[key] = true;
+                  localStorage.setItem(
+                    "completedFumigationDays",
+                    JSON.stringify(completedDays)
+                  );
+                  dayDiv.classList.add("completed");
+
+                  Swal.fire({
+                    title: "¡Hecho!",
+                    text: "Fumigación marcada como completada",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false,
+                  });
+                }
+              });
             };
           }
 
